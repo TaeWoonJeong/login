@@ -4,15 +4,15 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 @Controller
 public class UserController {
-    @GetMapping("/blog/index")
+    @GetMapping("/index")
     public String index() {
         return "html/index.html";
     }
-    @GetMapping("/blog/login")
+    @GetMapping("/auth/login")
     public String login() {
         return "html/login.html";
     }
-    @GetMapping("/blog/join")
+    @GetMapping("/auth/join")
     public String join() {
         return "html/join.html";
     }
