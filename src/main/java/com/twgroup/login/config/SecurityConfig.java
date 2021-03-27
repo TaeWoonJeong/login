@@ -1,7 +1,10 @@
 package com.twgroup.login.config;
 
+import com.twgroup.login.config.auth.PrincipalDetailService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -15,9 +18,20 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 //위의 3개 어노테이션이 거의 세트처럼 따라옴
 public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
+    @Autowired
+    private PrincipalDetailService principalDetailService;
+
     @Bean
     public BCryptPasswordEncoder encodePWD() {
         return new BCryptPasswordEncoder();
+    }
+
+    // 시큐리티가 대신 로그인 해주는데 password를 가로채기를 한뒤
+    // 해당 password가 어떻게 해쉬가 되어서 회원가입이 됬는지 알아야
+    // 같은 해쉬로 암호화해서 DB에 있는 해쉬랑 비교할 수 있음
+    @Override
+    protected void configure(AuthenticationManagerBuilder auth) throws Exception {
+        auth.userDetailsService(principalDetailService).passwordEncoder(encodePWD());
     }
 
     @Override
@@ -31,6 +45,8 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .authenticated()
             .and()
                 .formLogin()
-                .loginPage("/auth/login"); //인증이 필요하다.
+                .loginPage("/auth/login") //인증이 필요하다.
+                .loginProcessingUrl("/auth/loginProc") // 스프링 시큐리티가 해당주소로 요청오는 로그인 가로채서 대신 로그인함
+                .defaultSuccessUrl("/index");
     }
 }
